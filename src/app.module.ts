@@ -6,9 +6,12 @@ import { PostsModule } from './posts/posts.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import configuration from './common/configs/configuration';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
-  imports: [ConfigModule.forRoot( {load: [configuration], isGlobal: true }),UsersModule, PostsModule, AuthModule],
+  imports: [ConfigModule.forRoot( {load: [configuration], isGlobal: true }),
+    DatabaseModule,
+    UsersModule, PostsModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
