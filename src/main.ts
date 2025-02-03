@@ -1,9 +1,19 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
+import * as dotenv from 'dotenv';
+import * as process from 'node:process';
+import { ConfigService } from '@nestjs/config';
+import { AppConfig } from './common/configs/configs.type';
+
+dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const configService = app.get(ConfigService);
+  const appConfig = configService.get<AppConfig>('app');
 
   const config = new DocumentBuilder()
     .setTitle('Cats example')
@@ -22,9 +32,14 @@ async function bootstrap() {
       docExpansion: 'list',
     },
   });
+  app.useGlobalPipes(new ValidationPipe({
+    transform: true,
+    whitelist: true,
+    forbidNonWhitelisted: true
+  }));
 
-  await app.listen(process.env.PORT ?? 3000, '0.0.0.0', () => {
-    console.log(`Server running on port ${process.env.PORT ?? 3000}`);
+  await app.listen(appConfig.port, appConfig.host, () => {
+    console.log(`Server running on port http://${appConfig.host}:${appConfig.port}`);
     console.log('Swagger running on http://localhost:3000/docs');
   });
 }

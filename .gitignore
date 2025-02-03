@@ -3,6 +3,7 @@
 /node_modules
 /build
 
+exam-2024-api-db
 # Logs
 logs
 *.log
