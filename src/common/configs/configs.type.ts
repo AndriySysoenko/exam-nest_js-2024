@@ -1,8 +1,8 @@
 export type Config = {
   app: AppConfig;
   database: DatabaseConfig;
-  redis: RedisConfig
-}
+  redis: RedisConfig;
+};
 
 export type AppConfig = {
   port: number;

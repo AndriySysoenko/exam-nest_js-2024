@@ -1,11 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, Length, Matches, Max, Min } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Length,
+  Matches,
+  Max,
+  Min,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreateUserReqDto {
-
-  @IsString({message: 'Name must be a string'})
-  @Length(3, 20, {message: 'Name must be between 3 and 20 characters'})
+  @IsString({ message: 'Name must be a string' })
+  @Length(3, 20, { message: 'Name must be between 3 and 20 characters' })
   @Transform(({ value }) => value.trim())
   @ApiProperty({
     example: 'John Doe',
@@ -15,9 +24,9 @@ export class CreateUserReqDto {
   public readonly name: string;
 
   @IsEmail()
-  @IsNotEmpty({message: 'Email is required'})
+  @IsNotEmpty({ message: 'Email is required' })
   @IsString()
-  @Transform(({ value }) => value.trim.toLowerCase())
+  // @Transform(({ value }) => value.trim.toLowerCase())
   @ApiProperty({
     example: 'jD2j2@example.com',
     description: 'User email',

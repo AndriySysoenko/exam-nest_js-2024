@@ -15,6 +15,8 @@ export default new DataSource({
   password: postgresConfig.password,
   database: postgresConfig.dbName,
   entities: [],
-  migrations: [path.join(process.cwd(), 'src', 'database', 'migrations', '*.ts')],
+  migrations: [
+    path.join(process.cwd(), 'src', 'database', 'migrations', '*.ts'),
+  ],
   synchronize: false,
-})
+});

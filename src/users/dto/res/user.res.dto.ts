@@ -20,23 +20,31 @@ export class UserResDto {
   public readonly email: string;
 
   @ApiProperty({
-    example: 'password',
-    description: 'User password',
+    example: 'jD2j2@example.com',
+    description: 'User email',
     required: true,
+    uniqueItems: true,
   })
-  public readonly password: string;
+  public readonly createdAt: Date;
 
-  @ApiProperty({
-    example: 20,
-    description: 'User age',
-    required: false,
-  })
-  public readonly age: number;
+  // @ApiProperty({
+  //   example: 'password',
+  //   description: 'User password',
+  //   required: true,
+  // })
+  // public readonly password: string;
 
-  @ApiProperty({
-    example: 'male',
-    description: 'User gender',
-    required: false,
-  })
-  public readonly gender: string;
+  // @ApiProperty({
+  //   example: 20,
+  //   description: 'User age',
+  //   required: false,
+  // })
+  // public readonly age: number;
+  //
+  // @ApiProperty({
+  //   example: 'male',
+  //   description: 'User gender',
+  //   required: false,
+  // })
+  // public readonly gender: string;
 }
