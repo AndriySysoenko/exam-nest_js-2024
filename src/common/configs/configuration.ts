@@ -17,4 +17,8 @@ export default (): Config => ({
     host: process.env.REDIS_HOST,
     password: process.env.REDIS_PASSWORD,
   },
+  jwt: {
+    accessSecret: process.env.JWT_SECRET,
+    accessExpiresIn: parseInt(process.env.JWT_EXPIRES_IN),
+  },
 });

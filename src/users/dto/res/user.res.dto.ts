@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Expose, Transform } from 'class-transformer';
 
 export class UserResDto {
   @ApiProperty()
@@ -9,6 +10,7 @@ export class UserResDto {
     description: 'User name',
     required: true,
   })
+  @Expose()
   public readonly name: string;
 
   @ApiProperty({
@@ -17,6 +19,7 @@ export class UserResDto {
     required: true,
     uniqueItems: true,
   })
+  @Expose()
   public readonly email: string;
 
   @ApiProperty({
@@ -25,6 +28,8 @@ export class UserResDto {
     required: true,
     uniqueItems: true,
   })
+  @Expose()
+  @Transform(({ value }) => new Date(value))
   public readonly createdAt: Date;
 
   // @ApiProperty({

@@ -5,22 +5,28 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
+  Delete, Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-// import { CreateAuthDto } from './dto/create-auth.dto';
-// import { UpdateAuthDto } from './dto/update-auth.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { CreateUserReqDto } from '../users/dto/req/create-user.req.dto';
+import {
+  CreateUserReqDto,
+  LoginReqDto,
+} from '../users/dto/req/create-user.req.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('/register')
-  create(@Body() dataAuthDto: CreateUserReqDto) {
-    return this.authService.signUpUser(dataAuthDto);
+  @Post('/signup')
+  async signUp(@Body() dataAuthDto: CreateUserReqDto) {
+    return this.authService.signUp(dataAuthDto);
+  }
+
+  @Post('/login')
+  async login(@Body() loginDto: LoginReqDto) {
+    return this.authService.login(loginDto);
   }
 
   // @Get()
@@ -38,8 +44,15 @@ export class AuthController {
   //   return this.authService.update(+id, updateAuthDto);
   // }
   //
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.authService.remove(+id);
+
+  // @Delete('logout')
+  // async logout(@Req() req: Request): Promise<void> {
+  //   const userId = req.user.id; // Предполагается, что JwtGuard добавляет user в request
+  //   return this.authService.logout(userId);
   // }
+
+  @Delete('logout')
+  async logout(@Body('userId') userId: 'UserEntity[id]'): Promise<void> {
+    return this.authService.logout(userId);
+  }
 }

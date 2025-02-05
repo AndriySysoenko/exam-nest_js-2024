@@ -57,7 +57,7 @@ export class CreateUserReqDto {
     description: 'User age',
     required: false,
   })
-  public readonly age: number;
+  public readonly age?: number;
 
   @IsString()
   @IsOptional()
@@ -66,5 +66,7 @@ export class CreateUserReqDto {
     description: 'User gender',
     required: false,
   })
-  public readonly gender: string;
+  public readonly gender?: string;
 }
+
+export type LoginReqDto = Pick<CreateUserReqDto, 'email' | 'password'>;

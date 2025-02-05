@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import { Config, DatabaseConfig } from '../common/configs/configs.type';
 import { UserEntity } from './entities/user.entity';
+import { RefreshToken } from './entities/refresh-token.entity';
 
 @Injectable()
 export class DatabaseService implements TypeOrmOptionsFactory {
@@ -17,7 +18,7 @@ export class DatabaseService implements TypeOrmOptionsFactory {
       username: postgresConfig.user,
       password: postgresConfig.password,
       database: postgresConfig.dbName,
-      entities: [UserEntity],
+      entities: [UserEntity, RefreshToken],
       migrations: [],
       synchronize: true,
     };

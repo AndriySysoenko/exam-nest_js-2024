@@ -2,6 +2,7 @@ export type Config = {
   app: AppConfig;
   database: DatabaseConfig;
   redis: RedisConfig;
+  jwt: JWTConfig;
 };
 
 export type AppConfig = {
@@ -21,4 +22,9 @@ export type RedisConfig = {
   port: number;
   host: string;
   password: string;
+};
+
+export type JWTConfig = {
+  accessSecret: string;
+  accessExpiresIn: number;
 };
