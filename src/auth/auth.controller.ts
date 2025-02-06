@@ -5,20 +5,26 @@ import {
   Body,
   Patch,
   Param,
-  Delete, Req,
+  Delete,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import {
   CreateUserReqDto,
   LoginReqDto,
 } from '../users/dto/req/create-user.req.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { ITokenPayload } from '../common/interfaces/ITokenPayload';
+import { UserResDto } from '../users/dto/res/user.res.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ApiOkResponse({ type: UserResDto })
   @Post('/signup')
   async signUp(@Body() dataAuthDto: CreateUserReqDto) {
     return this.authService.signUp(dataAuthDto);
@@ -51,8 +57,16 @@ export class AuthController {
   //   return this.authService.logout(userId);
   // }
 
-  @Delete('logout')
-  async logout(@Body('userId') userId: 'UserEntity[id]'): Promise<void> {
-    return this.authService.logout(userId);
+  @Post('/logout')
+  @UseGuards(AuthGuard('jwt'))
+  async logout(@Req() req: { user: ITokenPayload }) {
+    await this.authService.logout(req.user.sub);
+    return { message: 'Logged out successfully' };
   }
 }
+
+//   @Delete('logout')
+//   async logout(@Body('userId') userId: 'UserEntity[id]'): Promise<void> {
+//     return this.authService.logout(userId);
+//   }
+// }

@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Transform } from 'class-transformer';
-// import { ITokenPair } from '../../../common/interfaces/ITokenPair';
+import { ITokenPair } from '../../../common/interfaces/ITokenPair';
 
-export class UserResDto {
+export class SignUpResDto {
   @ApiProperty()
   public readonly id: string;
 
@@ -32,29 +32,32 @@ export class UserResDto {
   @Expose()
   @Transform(({ value }) => new Date(value))
   public readonly createdAt: Date;
-
-  // @ApiProperty()
-  // @Expose()
-  // public readonly tokens: ITokenPair;
-
-  // @ApiProperty({
-  //   example: 'password',
-  //   description: 'User password',
-  //   required: true,
-  // })
-  // public readonly password: string;
-
-  // @ApiProperty({
-  //   example: 20,
-  //   description: 'User age',
-  //   required: false,
-  // })
-  // public readonly age: number;
-  //
-  // @ApiProperty({
-  //   example: 'male',
-  //   description: 'User gender',
-  //   required: false,
-  // })
-  // public readonly gender: string;
 }
+
+export class UserItemDto extends SignUpResDto {
+  @ApiProperty()
+  firstName: string;
+  @ApiProperty()
+  age: number;
+}
+
+// @ApiProperty({
+//   example: 'password',
+//   description: 'User password',
+//   required: true,
+// })
+// public readonly password: string;
+
+// @ApiProperty({
+//   example: 20,
+//   description: 'User age',
+//   required: false,
+// })
+// public readonly age: number;
+//
+// @ApiProperty({
+//   example: 'male',
+//   description: 'User gender',
+//   required: false,
+// })
+// public readonly gender: string;

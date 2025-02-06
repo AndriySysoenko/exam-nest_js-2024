@@ -6,10 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  Req,
+  NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserReqDto } from './dto/req/create-user.req.dto';
-import { UpdateUserReqDto } from './dto/req/update-user.req.dto';
+// import { UpdateUserReqDto } from './dto/req/update-user.req.dto';
 import {
   ApiForbiddenResponse,
   ApiNotFoundResponse,
@@ -17,54 +19,68 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { PaginatedResDto } from '../common/pagination/pagination.service';
+import { ITokenPayload } from '../common/interfaces/ITokenPayload';
+import { UserEntity } from '../database/entities/user.entity';
 import { UserResDto } from './dto/res/user.res.dto';
+// import { UserItemDto } from './dto/res/sign-up.res.dto';
 
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @ApiOkResponse({ type: UserResDto })
-  @Post()
-  public async create(
-    @Body() createUserDto: CreateUserReqDto,
-  ): Promise<UserResDto> {
-    return this.usersService.create(createUserDto);
+  @ApiNotFoundResponse({ description: 'Not found' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiOkResponse({ type: UserEntity })
+  @UseGuards(AuthGuard('jwt'))
+  @Get('me')
+  async getMe(@Req() req: { user: ITokenPayload }) {
+    return this.usersService.findById(req.user.sub);
   }
 
   @ApiNotFoundResponse({ description: 'Not found' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiOkResponse({ type: UserResDto })
+  @ApiOkResponse({ type: PaginatedResDto })
+  @UseGuards(AuthGuard('jwt'))
+  // @ApiPaginatedResponse('entities', PaginatedResDto)
   @Get('/list')
-  public async findAll(): Promise<[UserResDto]> {
+  public async findAll(): Promise<PaginatedResDto> {
     return this.usersService.findAll();
   }
 
   @ApiNotFoundResponse({ description: 'Not found' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiOkResponse({ type: UserResDto })
   @Get(':id')
   public async findOne(@Param('id') id: string): Promise<UserResDto> {
-    return this.usersService.findOne(id);
+    const user = await this.usersService.findById(id);
+    if (!user) throw new NotFoundException('User not found');
+    return user;
   }
+
+  // @ApiNotFoundResponse({ description: 'Not found' })
+  // @ApiForbiddenResponse({ description: 'Forbidden' })
+  // @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  // @Patch(':id')
+  // public async update(
+  //   @Param('id') id: string,
+  //   @Body() updateUserDto: UpdateUserReqDto,
+  // ): Promise<UserResDto> {
+  //   return this.usersService.update(id, updateUserDto);
+  // }
 
   @ApiNotFoundResponse({ description: 'Not found' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @Patch(':id')
-  public async update(
-    @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserReqDto,
-  ): Promise<UserResDto> {
-    return this.usersService.update(id, updateUserDto);
-  }
-
-  @ApiNotFoundResponse({ description: 'Not found' })
-  @ApiForbiddenResponse({ description: 'Forbidden' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @Delete(':id')
-  public async remove(@Param('id') id: string): Promise<any> {
-    return this.usersService.remove(id);
+  @Delete('me')
+  public async remove(
+    @Req() req: { user: ITokenPayload },
+  ): Promise<{ message: string }> {
+    return this.usersService.remove(req.user.sub);
   }
 }

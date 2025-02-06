@@ -18,7 +18,10 @@ export class UserEntity extends BaseEntity {
   @Column('integer', { nullable: true })
   age?: number;
 
-  @Column({ default: false })
+  @Column('text', { nullable: true })
+  gender?: string;
+
+  @Column({ default: true })
   isActive?: boolean;
 
   @Column({ default: 'User' })
