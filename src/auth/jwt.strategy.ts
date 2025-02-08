@@ -8,7 +8,6 @@ import Redis from 'ioredis';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
-import { ITokenPair } from '../common/interfaces/ITokenPair';
 import { ITokenPayload } from '../common/interfaces/ITokenPayload';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -55,7 +54,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   // }
 
   async validate(payload: ITokenPayload): Promise<{ id: string }> {
-    console.log('Decoded payload:', payload);
     const redisKey = `access_token:${payload.sub}`;
     const isExist = await this.redisClient.exists(redisKey);
     console.log('Exsist in redis:', isExist);

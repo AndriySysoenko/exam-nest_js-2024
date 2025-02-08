@@ -19,8 +19,8 @@ export class DatabaseService implements TypeOrmOptionsFactory {
       password: postgresConfig.password,
       database: postgresConfig.dbName,
       entities: [UserEntity, RefreshToken],
-      migrations: [],
-      synchronize: true,
+      // migrations: [],
+      synchronize: false,
     };
   }
 }

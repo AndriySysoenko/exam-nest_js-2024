@@ -1,6 +1,7 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { Exclude } from 'class-transformer';
+import { PostEntity } from './post.entity';
 
 @Entity('user')
 export class UserEntity extends BaseEntity {
@@ -21,6 +22,12 @@ export class UserEntity extends BaseEntity {
   age?: number;
 
   @Column('text', { nullable: true })
+  phone?: string;
+
+  @Column('text', { nullable: true, default: 'Kyiv' })
+  city?: string;
+
+  @Column('text', { nullable: true })
   gender?: string;
 
   @Column({ default: true })
@@ -28,4 +35,7 @@ export class UserEntity extends BaseEntity {
 
   @Column({ default: 'User' })
   role?: string;
+
+  @OneToMany(() => PostEntity, (entity) => entity.user)
+  posts?: PostEntity[];
 }

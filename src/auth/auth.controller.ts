@@ -1,10 +1,7 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Patch,
-  Param,
   Delete,
   Req,
   UseGuards,
@@ -16,7 +13,6 @@ import {
   LoginReqDto,
 } from '../users/dto/req/create-user.req.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { ITokenPayload } from '../common/interfaces/ITokenPayload';
 import { UserResDto } from '../users/dto/res/user.res.dto';
 import { UserEntity } from '../database/entities/user.entity';
 
@@ -31,8 +27,9 @@ export class AuthController {
     return this.authService.signUp(dataAuthDto);
   }
 
+  @ApiOkResponse({ type: UserResDto })
   @Post('/login')
-  async login(@Body() loginDto: LoginReqDto) {
+  public async login(@Body() loginDto: LoginReqDto) {
     return this.authService.login(loginDto);
   }
 

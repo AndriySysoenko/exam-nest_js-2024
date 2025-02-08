@@ -81,7 +81,6 @@ export class AuthService {
   }
 
   async logout(userId: string): Promise<void> {
-    console.log('Id for deleted token:', userId);
     try {
       await this.redisClient.del(`access_token:${userId}`);
       const isExist = await this.redisClient.exists(`access_token:${userId}`);
@@ -98,7 +97,6 @@ export class AuthService {
       sub: user.id,
       password: user.password,
     };
-    console.log(payload);
     const accessToken = this.jwtService.sign(payload);
     await this.redisClient.set(
       `access_token:${payload.sub}`,
@@ -119,24 +117,4 @@ export class AuthService {
     };
     return tokenPair;
   }
-
-  // create(createAuthDto: CreateAuthDto) {
-  //   return 'This action adds a new auth';
-  // }
-  //
-  // findAll() {
-  //   return `This action returns all auth`;
-  // }
-  //
-  // findOne(id: number) {
-  //   return `This action returns a #${id} auth`;
-  // }
-  //
-  // update(id: number, updateAuthDto: UpdateAuthDto) {
-  //   return `This action updates a #${id} auth`;
-  // }
-  //
-  // remove(id: number) {
-  //   return `This action removes a #${id} auth`;
-  // }
 }

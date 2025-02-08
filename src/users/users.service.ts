@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-// import { UpdateUserReqDto } from './dto/req/update-user.req.dto';
+import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../database/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -13,6 +13,8 @@ import { PaginatedResDto } from '../common/pagination/pagination.service';
 import { paginateRawAndEntities } from 'nestjs-typeorm-paginate';
 import { AuthService } from '../auth/auth.service';
 import { UserResDto } from './dto/res/user.res.dto';
+import { endOfDay, startOfDay } from 'date-fns';
+import { UpdateUserReqDto } from './dto/req/update-user.req.dto';
 
 @Injectable()
 export class UsersService {
@@ -49,7 +51,16 @@ export class UsersService {
 
         if (key === 'isActive') value = query[key] === 'true';
         if (key === 'age') value = Number(query[key]);
-        if (key === 'createdAt') value = new Date(query[key]);
+        if (key === 'createdAt' || key === 'updatedAt') {
+          const date = new Date(query[key]);
+          const startOfDayDate = startOfDay(date); // Початок дня
+          const endOfDayDate = endOfDay(date);
+          queryBuilder.andWhere('user.createdAt BETWEEN :start AND :end', {
+            start: startOfDayDate,
+            end: endOfDayDate,
+          });
+          return;
+        }
         queryBuilder.andWhere(`user.${key} = :${key}`, { [key]: value });
       }
     });
@@ -74,7 +85,6 @@ export class UsersService {
         limit: +query?.limit || 10,
       },
     );
-
     return {
       page: pagination.meta.currentPage,
       pages: pagination.meta.totalPages,
@@ -85,16 +95,35 @@ export class UsersService {
   }
 
   public async findById(id: string): Promise<UserResDto> {
-    console.log(id);
     return this.usersRepository.findOne({ where: { id } });
   }
 
-  // public async update(
-  //   id: string,
-  //   updateUserDto: UpdateUserReqDto,
-  // ): Promise<any> {
-  //   return `This action updates a #${id} user`;
-  // }
+  public async findByEmail(email: string): Promise<UserResDto> {
+    return this.usersRepository.findOneBy({ email });
+  }
+
+  public async updateCurrentUser(
+    userId: string,
+    updateUserDto: UpdateUserReqDto,
+  ): Promise<UserEntity> {
+    const user = await this.usersRepository.findOneBy({ id: userId });
+    if (!user) {
+      throw new Error('User not found.');
+    }
+
+    for (const [key, value] of Object.entries(updateUserDto)) {
+      if (value !== undefined && value !== null) {
+        if (key === 'password') {
+          user[key] = await bcrypt.hash(value, 10);
+        } else {
+          user[key] = value;
+        }
+      }
+    }
+
+    return this.usersRepository.save(user);
+  }
+
   async remove(id: string): Promise<{ message: string }> {
     const result = await this.usersRepository.delete(id);
     if (!result.affected) throw new NotFoundException('User not found');

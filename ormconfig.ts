@@ -14,7 +14,9 @@ export default new DataSource({
   username: postgresConfig.user,
   password: postgresConfig.password,
   database: postgresConfig.dbName,
-  entities: [],
+  entities: [
+    path.join(process.cwd(), 'src', 'database', 'entities', '*.entity.ts'),
+  ],
   migrations: [
     path.join(process.cwd(), 'src', 'database', 'migrations', '*.ts'),
   ],

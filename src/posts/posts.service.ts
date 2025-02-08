@@ -1,26 +1,57 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { PostEntity } from '../database/entities/post.entity';
 
 @Injectable()
 export class PostsService {
-  create(createPostDto: CreatePostDto) {
-    return 'This action adds a new post';
+  constructor(
+    @InjectRepository(PostEntity)
+    private readonly postsRepository: Repository<PostEntity>,
+  ) {}
+
+  public async getUserPosts(userId: string): Promise<PostEntity[]> {
+    return this.postsRepository.find({ where: { user: { id: userId } } });
   }
 
-  findAll() {
-    return `This action returns all posts`;
+  public async createPost(
+    userId: string,
+    createPostDto: CreatePostDto,
+  ): Promise<PostEntity> {
+    const newPost = this.postsRepository.create({
+      ...createPostDto,
+      user: { id: userId },
+    });
+    return this.postsRepository.save(newPost);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  public async deletePost(userId: string, postId: string): Promise<void> {
+    const post = await this.postsRepository.findOne({
+      where: { id: postId, user: { id: userId } },
+    });
+    if (!post)
+      throw new NotFoundException(
+        'Post not found or you do not have permission to delete it.',
+      );
+    await this.postsRepository.delete(postId);
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
-  }
+  public async updatePost(
+    userId: string,
+    postId: string,
+    updatePostDto: UpdatePostDto,
+  ): Promise<PostEntity> {
+    const post = await this.postsRepository.findOne({
+      where: { id: postId, user: { id: userId } },
+    });
+    if (!post)
+      throw new NotFoundException(
+        'Post not found or you do not have permission to edit it.',
+      );
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+    Object.assign(post, updatePostDto);
+    return this.postsRepository.save(post);
   }
 }
