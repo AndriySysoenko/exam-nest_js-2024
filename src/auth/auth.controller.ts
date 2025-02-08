@@ -18,6 +18,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ITokenPayload } from '../common/interfaces/ITokenPayload';
 import { UserResDto } from '../users/dto/res/user.res.dto';
+import { UserEntity } from '../database/entities/user.entity';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -57,10 +58,10 @@ export class AuthController {
   //   return this.authService.logout(userId);
   // }
 
-  @Post('/logout')
+  @Delete('/logout')
   @UseGuards(AuthGuard('jwt'))
-  async logout(@Req() req: { user: ITokenPayload }) {
-    await this.authService.logout(req.user.sub);
+  async logout(@Req() req: { user: UserEntity }) {
+    await this.authService.logout(req.user.id);
     return { message: 'Logged out successfully' };
   }
 }

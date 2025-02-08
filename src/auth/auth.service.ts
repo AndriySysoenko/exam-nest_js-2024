@@ -60,7 +60,7 @@ export class AuthService {
     //   throw new BadRequestException('Error during registration');
     // }
   }
-  private async validateUser(
+  public async validateUser(
     email: string,
     password: string,
   ): Promise<UserEntity> {
@@ -81,8 +81,11 @@ export class AuthService {
   }
 
   async logout(userId: string): Promise<void> {
+    console.log('Id for deleted token:', userId);
     try {
-      await this.redisClient.del(userId);
+      await this.redisClient.del(`access_token:${userId}`);
+      const isExist = await this.redisClient.exists(`access_token:${userId}`);
+      console.log('Exsist in redis after logout:', isExist);
       await this.refreshTokenRepository.delete({ userId });
     } catch {
       throw new BadRequestException('Logout failed');
@@ -90,10 +93,15 @@ export class AuthService {
   }
 
   private async generateTokens(user: UserEntity): Promise<ITokenPair> {
-    const payload: ITokenPayload = { email: user.email, sub: user.id };
+    const payload: ITokenPayload = {
+      email: user.email,
+      sub: user.id,
+      password: user.password,
+    };
+    console.log(payload);
     const accessToken = this.jwtService.sign(payload);
     await this.redisClient.set(
-      `access_token:${user.id}`,
+      `access_token:${payload.sub}`,
       accessToken,
       'EX',
       900,
@@ -101,7 +109,7 @@ export class AuthService {
 
     const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
     await this.refreshTokenRepository.save({
-      userId: user.id,
+      userId: payload.sub,
       token: refreshToken,
     });
 

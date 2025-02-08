@@ -1,5 +1,6 @@
 import { Column, Entity } from 'typeorm';
 import { BaseEntity } from './base.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity('user')
 export class UserEntity extends BaseEntity {
@@ -13,6 +14,7 @@ export class UserEntity extends BaseEntity {
   email: string;
 
   @Column('text', { nullable: false })
+  @Exclude()
   password: string;
 
   @Column('integer', { nullable: true })

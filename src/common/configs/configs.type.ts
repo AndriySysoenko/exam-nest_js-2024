@@ -21,7 +21,7 @@ export type DatabaseConfig = {
 export type RedisConfig = {
   port: number;
   host: string;
-  password: string;
+  // password: string;
 };
 
 export type JWTConfig = {
