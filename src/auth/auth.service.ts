@@ -5,19 +5,20 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from '../database/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { QueryFailedError, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import Redis from 'ioredis';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+
+import { UserEntity } from '../database/entities/user.entity';
 import {
   CreateUserReqDto,
   LoginReqDto,
-} from '../users/dto/req/create-user.req.dto';
+} from '../users/dto/create-user.req.dto';
 import { ITokenPair } from '../common/interfaces/ITokenPair';
 import { ITokenPayload } from '../common/interfaces/ITokenPayload';
-import Redis from 'ioredis';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import { UserResDto } from '../users/dto/res/user.res.dto';
+import { UserResDto } from '../users/dto/user.res.dto';
 import { plainToInstance } from 'class-transformer';
 import { RefreshTokenEntity } from '../database/entities/refresh-token.entity';
 

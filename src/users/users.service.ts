@@ -5,16 +5,19 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from '../database/entities/user.entity';
 import { Repository } from 'typeorm';
+import { paginateRawAndEntities } from 'nestjs-typeorm-paginate';
+import { InjectRepository } from '@nestjs/typeorm';
+import { plainToInstance } from 'class-transformer';
+import { endOfDay, startOfDay } from 'date-fns';
+
+import { UserEntity } from '../database/entities/user.entity';
 import { QueryDto } from '../common/pagination/pagination.query.dto';
 import { PaginatedResDto } from '../common/pagination/pagination.res.dto';
-import { paginateRawAndEntities } from 'nestjs-typeorm-paginate';
 import { AuthService } from '../auth/auth.service';
-import { UserResDto } from './dto/res/user.res.dto';
-import { endOfDay, startOfDay } from 'date-fns';
-import { UpdateUserReqDto } from './dto/req/update-user.req.dto';
+import { UserResDto } from './dto/user.res.dto';
+import { UpdateUserReqDto } from './dto/update-user.req.dto';
+
 
 @Injectable()
 export class UsersService {
@@ -26,7 +29,6 @@ export class UsersService {
   ) {}
 
   public async findProfile(id: string): Promise<UserEntity> {
-    console.log(id);
     return this.usersRepository.findOne({ where: { id } });
   }
 
@@ -95,11 +97,17 @@ export class UsersService {
   }
 
   public async findById(id: string): Promise<UserResDto> {
-    return this.usersRepository.findOne({ where: { id } });
+    const user = await this.usersRepository.findOne({ where: { id } });
+    return plainToInstance(UserResDto, user, {
+      excludeExtraneousValues: true,
+    });
   }
 
   public async findByEmail(email: string): Promise<UserResDto> {
-    return this.usersRepository.findOneBy({ email });
+    const user = this.usersRepository.findOneBy({ email });
+    return plainToInstance(UserResDto, user, {
+      excludeExtraneousValues: true,
+    });
   }
 
   public async updateCurrentUser(

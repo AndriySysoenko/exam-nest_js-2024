@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { RedisModule } from '@nestjs-modules/ioredis';
+
 import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
 import { AuthModule } from './auth/auth.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './common/configs/configuration';
 import { DatabaseModule } from './database/database.module';
-import { RedisModule } from '@nestjs-modules/ioredis';
+
 
 @Module({
   imports: [
@@ -17,9 +17,6 @@ import { RedisModule } from '@nestjs-modules/ioredis';
       useFactory: async (configService: ConfigService) => ({
         type: 'single',
         url: `redis://${configService.get<string>('redis.host')}:${configService.get<number>('redis.port')}`,
-        /*options: {
-          password: configService.get<string>('redis.password'),
-        },*/
       }),
     }),
     DatabaseModule,
@@ -28,7 +25,7 @@ import { RedisModule } from '@nestjs-modules/ioredis';
     AuthModule,
   ],
 
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

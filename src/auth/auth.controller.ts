@@ -17,9 +17,9 @@ import {
 import {
   CreateUserReqDto,
   LoginReqDto,
-} from '../users/dto/req/create-user.req.dto';
+} from '../users/dto/create-user.req.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { UserResDto } from '../users/dto/res/user.res.dto';
+import { UserResDto } from '../users/dto/user.res.dto';
 import { UserEntity } from '../database/entities/user.entity';
 import { ITokenPair } from '../common/interfaces/ITokenPair';
 

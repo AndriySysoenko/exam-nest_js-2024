@@ -11,7 +11,6 @@ import {
   UnauthorizedException,
   Patch,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
 import {
   ApiBearerAuth,
   ApiForbiddenResponse,
@@ -22,11 +21,13 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+
+import { UsersService } from './users.service';
 import { PaginatedResDto } from '../common/pagination/pagination.res.dto';
 import { UserEntity } from '../database/entities/user.entity';
-import { UserResDto } from './dto/res/user.res.dto';
+import { UserResDto } from './dto/user.res.dto';
 import { QueryDto } from '../common/pagination/pagination.query.dto';
-import { UpdateUserReqDto } from './dto/req/update-user.req.dto';
+import { UpdateUserReqDto } from './dto/update-user.req.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -79,7 +80,6 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'))
   @Get('email/:email')
   public async findByEmail(@Param('email') email: string): Promise<UserResDto> {
-    console.log('This', email);
     const user = await this.usersService.findByEmail(email);
     if (!user) throw new NotFoundException('User not found');
     return user;
