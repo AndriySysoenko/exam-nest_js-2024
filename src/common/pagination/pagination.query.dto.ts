@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBooleanString,
-  IsEnum, IsISO8601,
+  IsEnum,
+  IsISO8601,
   IsNumberString,
   IsOptional,
   IsString,
@@ -60,4 +61,19 @@ export class QueryDto {
   @IsString()
   @IsOptional()
   updatedAt?: Date;
+}
+
+export class PostQueryDto {
+  @ApiProperty({ required: false, default: 1 })
+  @IsOptional()
+  page?: string;
+
+  @ApiProperty({ required: false, default: 10 })
+  @IsOptional()
+  limit?: string;
+
+  @ApiProperty({ required: false, default: 'ASC', enum: ['ASC', 'DESC'] })
+  @IsEnum(['ASC', 'DESC'])
+  @IsOptional()
+  order?: string = 'ASC';
 }

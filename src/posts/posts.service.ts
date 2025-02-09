@@ -4,6 +4,11 @@ import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostEntity } from '../database/entities/post.entity';
+import { plainToInstance } from 'class-transformer';
+import { PostResDto } from './dto/create-post.res.dto';
+import { paginateRawAndEntities } from 'nestjs-typeorm-paginate';
+import { PostQueryDto } from '../common/pagination/pagination.query.dto';
+import { PaginatedResDto } from '../common/pagination/pagination.res.dto';
 
 @Injectable()
 export class PostsService {
@@ -12,19 +17,46 @@ export class PostsService {
     private readonly postsRepository: Repository<PostEntity>,
   ) {}
 
-  public async getUserPosts(userId: string): Promise<PostEntity[]> {
-    return this.postsRepository.find({ where: { user: { id: userId } } });
+  public async getUserPosts(
+    userId: string,
+    query?: PostQueryDto,
+  ): Promise<PaginatedResDto<PostEntity>> {
+    const queryBuilder = this.postsRepository
+      .createQueryBuilder('post')
+      .where('post.user_id = :userId', { userId }) // Фильтруем посты по пользователю
+      .orderBy('post.createdAt', 'DESC'); // Сортируем по дате создания
+
+    const [pagination, rawEntities] = await paginateRawAndEntities(
+      queryBuilder,
+      {
+        page: +query?.page || 1,
+        limit: +query?.limit || 10,
+      },
+    );
+
+    return {
+      page: pagination.meta.currentPage,
+      pages: pagination.meta.totalPages,
+      limit: pagination.meta.itemsPerPage,
+      total: pagination.meta.totalItems,
+      entities: rawEntities,
+    };
   }
 
   public async createPost(
     userId: string,
     createPostDto: CreatePostDto,
-  ): Promise<PostEntity> {
-    const newPost = this.postsRepository.create({
-      ...createPostDto,
-      user: { id: userId },
+  ): Promise<PostResDto> {
+    const newPost = await this.postsRepository.save(
+      this.postsRepository.create({
+        ...createPostDto,
+        user: { id: userId },
+      }),
+    );
+
+    return plainToInstance(PostResDto, newPost, {
+      excludeExtraneousValues: true,
     });
-    return this.postsRepository.save(newPost);
   }
 
   public async deletePost(userId: string, postId: string): Promise<void> {

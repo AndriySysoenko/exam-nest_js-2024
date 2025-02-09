@@ -1,7 +1,8 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { Exclude } from 'class-transformer';
 import { PostEntity } from './post.entity';
+import { RefreshTokenEntity } from './refresh-token.entity';
 
 @Entity('user')
 export class UserEntity extends BaseEntity {
@@ -38,4 +39,11 @@ export class UserEntity extends BaseEntity {
 
   @OneToMany(() => PostEntity, (entity) => entity.user)
   posts?: PostEntity[];
+
+  @OneToOne(() => RefreshTokenEntity, (entity) => entity.user, {
+    cascade: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn()
+  refreshToken?: RefreshTokenEntity;
 }

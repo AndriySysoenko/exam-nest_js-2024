@@ -8,8 +8,8 @@ import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../database/entities/user.entity';
 import { Repository } from 'typeorm';
-import { QueryDto } from '../common/pagination/pagination.dto';
-import { PaginatedResDto } from '../common/pagination/pagination.service';
+import { QueryDto } from '../common/pagination/pagination.query.dto';
+import { PaginatedResDto } from '../common/pagination/pagination.res.dto';
 import { paginateRawAndEntities } from 'nestjs-typeorm-paginate';
 import { AuthService } from '../auth/auth.service';
 import { UserResDto } from './dto/res/user.res.dto';
@@ -30,7 +30,7 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { id } });
   }
 
-  public async findAll(query?: QueryDto): Promise<PaginatedResDto> {
+  public async findAll(query?: QueryDto): Promise<PaginatedResDto<UserResDto>> {
     const queryBuilder = this.usersRepository.createQueryBuilder('user');
 
     const selectFields = [

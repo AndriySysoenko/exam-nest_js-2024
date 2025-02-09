@@ -13,6 +13,7 @@ import {
 import { Transform } from 'class-transformer';
 
 export class CreateUserReqDto {
+  @IsNotEmpty({ message: 'Name is required' })
   @IsString({ message: 'Name must be a string' })
   @Length(3, 20, { message: 'Name must be between 3 and 20 characters' })
   @Transform(({ value }) => value.trim())
@@ -26,7 +27,7 @@ export class CreateUserReqDto {
   @IsEmail()
   @IsNotEmpty({ message: 'Email is required' })
   @IsString()
-  // @Transform(({ value }) => value.trim.toLowerCase())
+  @Matches(/^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/)
   @ApiProperty({
     example: 'jD2j2@example.com',
     description: 'User email',
@@ -51,13 +52,13 @@ export class CreateUserReqDto {
   @IsNumber()
   @Min(16)
   @Max(99)
-  @IsOptional()
+  @IsNotEmpty()
   @ApiProperty({
     example: 20,
     description: 'User age',
     required: false,
   })
-  public readonly age?: number;
+  public readonly age: number;
 
   @IsString()
   @IsOptional()
@@ -67,6 +68,24 @@ export class CreateUserReqDto {
     required: false,
   })
   public readonly gender?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    example: '+380501234567',
+    description: 'Update user phone',
+    required: false,
+  })
+  public readonly phone?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    example: 'Kiev',
+    description: 'Update user city',
+    required: false,
+  })
+  public readonly city?: string;
 }
 
 export type LoginReqDto = Pick<CreateUserReqDto, 'email' | 'password'>;

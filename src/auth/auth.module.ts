@@ -6,7 +6,7 @@ import { UserEntity } from '../database/entities/user.entity';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
-import { RefreshToken } from '../database/entities/refresh-token.entity';
+import { RefreshTokenEntity } from '../database/entities/refresh-token.entity';
 import { forwardRef, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 // import { RedisModule } from '@nestjs-modules/ioredis';
@@ -22,7 +22,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         signOptions: { expiresIn: '15m' },
       }),
     }),
-    TypeOrmModule.forFeature([UserEntity, RefreshToken]),
+    TypeOrmModule.forFeature([UserEntity, RefreshTokenEntity]),
     forwardRef(() => UsersModule),
   ],
   controllers: [AuthController],

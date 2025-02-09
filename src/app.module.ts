@@ -17,9 +17,9 @@ import { RedisModule } from '@nestjs-modules/ioredis';
       useFactory: async (configService: ConfigService) => ({
         type: 'single',
         url: `redis://${configService.get<string>('redis.host')}:${configService.get<number>('redis.port')}`,
-        // options: {
-        //   password: configService.get<string>('redis.password'),
-        // },
+        /*options: {
+          password: configService.get<string>('redis.password'),
+        },*/
       }),
     }),
     DatabaseModule,

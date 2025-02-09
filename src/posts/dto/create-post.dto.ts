@@ -5,7 +5,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class CreatePostDto {
   @IsString()
   @IsNotEmpty()
-  @Length(3, 50)
+  @Length(10, 100)
   @Transform(({ value }) => value.trim())
   @Type(() => String)
   @ApiProperty({ required: true })

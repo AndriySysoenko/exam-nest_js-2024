@@ -9,23 +9,23 @@ import {
   NotFoundException,
   Query,
   UnauthorizedException,
-  Put,
+  Patch,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-// import { UpdateUserReqDto } from './dto/req/update-user.req.dto';
 import {
+  ApiBearerAuth,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
-  ApiOkResponse, ApiResponse,
+  ApiOkResponse,
+  ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import { PaginatedResDto } from '../common/pagination/pagination.service';
-import { ITokenPayload } from '../common/interfaces/ITokenPayload';
+import { PaginatedResDto } from '../common/pagination/pagination.res.dto';
 import { UserEntity } from '../database/entities/user.entity';
 import { UserResDto } from './dto/res/user.res.dto';
-import { QueryDto } from '../common/pagination/pagination.dto';
+import { QueryDto } from '../common/pagination/pagination.query.dto';
 import { UpdateUserReqDto } from './dto/req/update-user.req.dto';
 
 @ApiTags('Users')
@@ -33,6 +33,7 @@ import { UpdateUserReqDto } from './dto/req/update-user.req.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @ApiBearerAuth()
   @ApiNotFoundResponse({ description: 'Not found' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
@@ -46,13 +47,16 @@ export class UsersController {
     return this.usersService.findProfile(req.user.id);
   }
 
+  @ApiBearerAuth()
   @ApiNotFoundResponse({ description: 'Not found' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiOkResponse({ type: PaginatedResDto })
   @UseGuards(AuthGuard('jwt'))
   @Get('list')
-  public async findAll(@Query() query: QueryDto): Promise<PaginatedResDto> {
+  public async findAll(
+    @Query() query: QueryDto,
+  ): Promise<PaginatedResDto<UserResDto>> {
     return this.usersService.findAll(query);
   }
 
@@ -81,12 +85,13 @@ export class UsersController {
     return user;
   }
 
+  @ApiBearerAuth()
   @ApiNotFoundResponse({ description: 'Not found' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiOkResponse({ type: UserEntity })
   @UseGuards(AuthGuard('jwt'))
-  @Put('me')
+  @Patch('me')
   public async updateMe(
     @Req() req: { user: UserEntity },
     @Body() updateUserDto: UpdateUserReqDto,
@@ -94,6 +99,7 @@ export class UsersController {
     return this.usersService.updateCurrentUser(req.user.id, updateUserDto);
   }
 
+  @ApiBearerAuth()
   @ApiNotFoundResponse({ description: 'Not found' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })

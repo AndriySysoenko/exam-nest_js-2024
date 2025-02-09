@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserEntity } from '../../database/entities/user.entity';
 import { IsArray } from 'class-validator';
 
-export class PaginatedResDto {
+export class PaginatedResDto<T> {
   @ApiProperty({ type: 'number' })
   page: number;
 
@@ -17,5 +16,5 @@ export class PaginatedResDto {
 
   @IsArray()
   @ApiProperty({ type: 'array', items: { type: 'object' } })
-  entities: Partial<UserEntity>[];
+  entities: Partial<T>[];
 }

@@ -1,16 +1,14 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-// import { JwtService } from '@nestjs/jwt';
-// import { ITokenPayload } from '../common/interfaces/ITokenPayload';
 import Redis from 'ioredis';
-// import { AuthService } from './auth.service';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { JwtService } from '@nestjs/jwt';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+
 import { AuthService } from './auth.service';
 import { ITokenPayload } from '../common/interfaces/ITokenPayload';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { UserEntity } from '../database/entities/user.entity';
 
 @Injectable()
@@ -28,37 +26,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       secretOrKey: process.env.JWT_SECRET,
     });
   }
-
-  //   async validate(
-  //     tokenPair: ITokenPair,
-  //   ): Promise<{ password: string; email: string }> {
-  //     try {
-  //       const decodeToken: any = this.jwtService.decode(tokenPair.accessToken);
-  //       if (
-  //         !(await this.redisClient.exists(`access_token:${decodeToken.email}`))
-  //       ) {
-  //         throw new UnauthorizedException();
-  //       }
-  //
-  //       await this.jwtService.verifyAsync(tokenPair.accessToken);
-  //       const user = await this.authService.validateUser(
-  //         decodeToken.email,
-  //         decodeToken.password,
-  //       );
-  //       return user;
-  //     } catch (error) {
-  //       console.log(error);
-  //       throw new UnauthorizedException();
-  //     }
-  //   }
-  // }
-
   async validate(payload: ITokenPayload): Promise<{ id: string }> {
-    const redisKey = `access_token:${payload.sub}`;
-    const isExist = await this.redisClient.exists(redisKey);
-    console.log('Exsist in redis:', isExist);
-    const accessTokenInRedis = await this.redisClient.get(redisKey);
-
+    const accessTokenInRedis = await this.redisClient.get(
+      `access_token:${payload.sub}`,
+    );
     if (!accessTokenInRedis) {
       throw new UnauthorizedException('Access token not found in Redis.');
     }
@@ -87,7 +58,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       }
 
       return user;
-    } catch (error) {
+    } catch {
       throw new UnauthorizedException('Access token is invalid or expired.');
     }
   }

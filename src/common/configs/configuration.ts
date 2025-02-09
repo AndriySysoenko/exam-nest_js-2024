@@ -15,10 +15,11 @@ export default (): Config => ({
   redis: {
     port: parseInt(process.env.REDIS_PORT) || 6379,
     host: process.env.REDIS_HOST,
-    // password: process.env.REDIS_PASSWORD,
   },
   jwt: {
     accessSecret: process.env.JWT_SECRET,
-    accessExpiresIn: parseInt(process.env.JWT_EXPIRES_IN),
+    accessExpiresIn: process.env.JWT_EXPIRES_IN,
+    refreshSecret: process.env.JWT_REFRESH_SECRET,
+    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN,
   },
 });
