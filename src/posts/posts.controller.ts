@@ -35,29 +35,14 @@ import { PaginatedResDto } from '../common/pagination/pagination.res.dto';
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
-  // 1. Перегляд постів користувача
-  @ApiNotFoundResponse({ description: 'Not found' })
-  @ApiForbiddenResponse({ description: 'Forbidden' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiOkResponse({ type: PostEntity, isArray: true })
-  @ApiOperation({ summary: 'Get all posts of a user' })
-  @Get('user/:userId')
-  public async getUserPosts(
-    @Param('userId') userId: string,
-    @Query() query: PostQueryDto,
-  ): Promise<PaginatedResDto<PostEntity>> {
-    return this.postsService.getUserPosts(userId, query);
-  }
-
-  // 2. Створення посту
-  @Post()
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new post' })
   @ApiNotFoundResponse({ description: 'Not found' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiOkResponse({ type: PostEntity })
+  @ApiOkResponse({ type: PostResDto })
+  @Post()
   public async createPost(
     @Req() req: { user: UserEntity },
     @Body() createPostDto: CreatePostDto,
@@ -65,34 +50,49 @@ export class PostsController {
     return this.postsService.createPost(req.user.id, createPostDto);
   }
 
-  // 3. Видалення посту
+  @ApiNotFoundResponse({ description: 'Not found' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiOkResponse({ type: PostResDto, isArray: true })
+  @ApiOperation({ summary: 'Get all posts of a user' })
+  @Get('user/:userId')
+  public async getUserPosts(
+    @Param('userId') userId: string,
+    @Query() query: PostQueryDto,
+  ): Promise<PaginatedResDto<PostResDto>> {
+    return this.postsService.getUserPosts(userId, query);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a post' })
+  @ApiNotFoundResponse({ description: 'Not found' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiOkResponse({ type: PostResDto })
+  @Patch(':postId')
+  public async updatePost(
+    @Req() req: { user: UserEntity },
+    @Param('postId') postId: string,
+    @Body() updatePostDto: UpdatePostDto,
+  ): Promise<PostResDto> {
+    return this.postsService.updatePost(req.user.id, postId, updatePostDto);
+  }
+
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a post' })
   @ApiNotFoundResponse({ description: 'Not found' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiResponse({ status: 200, description: 'Post deleted successfully.' })
+  @ApiOkResponse({
+    schema: { example: { message: 'Post successfully deleted' } },
+  })
   @Delete(':postId')
   public async deletePost(
     @Req() req: { user: UserEntity },
     @Param('postId') postId: string,
   ) {
     return this.postsService.deletePost(req.user.id, postId);
-  }
-
-  // 4. Редагування посту
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update a post' })
-  @ApiResponse({ status: 200, description: 'Post updated successfully.' })
-  @ApiResponse({ status: 404, description: 'Post not found or unauthorized.' })
-  @Patch(':postId')
-  public async updatePost(
-    @Req() req: { user: UserEntity },
-    @Param('postId') postId: string,
-    @Body() updatePostDto: UpdatePostDto,
-  ) {
-    return this.postsService.updatePost(req.user.id, postId, updatePostDto);
   }
 }

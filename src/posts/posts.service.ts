@@ -17,32 +17,6 @@ export class PostsService {
     private readonly postsRepository: Repository<PostEntity>,
   ) {}
 
-  public async getUserPosts(
-    userId: string,
-    query?: PostQueryDto,
-  ): Promise<PaginatedResDto<PostEntity>> {
-    const queryBuilder = this.postsRepository
-      .createQueryBuilder('post')
-      .where('post.user_id = :userId', { userId }) // Фильтруем посты по пользователю
-      .orderBy('post.createdAt', 'DESC'); // Сортируем по дате создания
-
-    const [pagination, rawEntities] = await paginateRawAndEntities(
-      queryBuilder,
-      {
-        page: +query?.page || 1,
-        limit: +query?.limit || 10,
-      },
-    );
-
-    return {
-      page: pagination.meta.currentPage,
-      pages: pagination.meta.totalPages,
-      limit: pagination.meta.itemsPerPage,
-      total: pagination.meta.totalItems,
-      entities: rawEntities,
-    };
-  }
-
   public async createPost(
     userId: string,
     createPostDto: CreatePostDto,
@@ -53,10 +27,51 @@ export class PostsService {
         user: { id: userId },
       }),
     );
-
     return plainToInstance(PostResDto, newPost, {
       excludeExtraneousValues: true,
     });
+  }
+
+  public async getUserPosts(
+    userId: string,
+    query?: PostQueryDto,
+  ): Promise<PaginatedResDto<PostResDto>> {
+    const queryBuilder = this.postsRepository
+      .createQueryBuilder('post')
+      .where('post.user_id = :userId', { userId })
+      .orderBy('post.createdAt', 'DESC');
+
+    const [pagination, rawEntities] = await paginateRawAndEntities(
+      queryBuilder,
+      {
+        page: +query?.page || 1,
+        limit: +query?.limit || 10,
+      },
+    );
+    return {
+      page: pagination.meta.currentPage,
+      pages: pagination.meta.totalPages,
+      limit: pagination.meta.itemsPerPage,
+      total: pagination.meta.totalItems,
+      entities: rawEntities,
+    };
+  }
+
+  public async updatePost(
+    userId: string,
+    postId: string,
+    updatePostDto: UpdatePostDto,
+  ): Promise<PostResDto> {
+    const post = await this.postsRepository.findOne({
+      where: { id: postId, user: { id: userId } },
+    });
+    if (!post)
+      throw new NotFoundException(
+        'Post not found or you do not have permission to edit it.',
+      );
+
+    Object.assign(post, updatePostDto);
+    return this.postsRepository.save(post);
   }
 
   public async deletePost(userId: string, postId: string): Promise<void> {
@@ -68,22 +83,5 @@ export class PostsService {
         'Post not found or you do not have permission to delete it.',
       );
     await this.postsRepository.delete(postId);
-  }
-
-  public async updatePost(
-    userId: string,
-    postId: string,
-    updatePostDto: UpdatePostDto,
-  ): Promise<PostEntity> {
-    const post = await this.postsRepository.findOne({
-      where: { id: postId, user: { id: userId } },
-    });
-    if (!post)
-      throw new NotFoundException(
-        'Post not found or you do not have permission to edit it.',
-      );
-
-    Object.assign(post, updatePostDto);
-    return this.postsRepository.save(post);
   }
 }

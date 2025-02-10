@@ -24,6 +24,17 @@ export class CreateUserReqDto {
   })
   public readonly name: string;
 
+  @IsOptional()
+  @IsString({ message: 'nickName must be a string' })
+  @Length(3, 20, { message: 'Name must be between 3 and 20 characters' })
+  @Transform(({ value }) => value.trim())
+  @ApiProperty({
+    example: 'JohnDoe',
+    description: 'Nickname',
+    required: false,
+  })
+  public readonly nickName?: string;
+
   @IsEmail()
   @IsNotEmpty({ message: 'Email is required' })
   @IsString()
@@ -87,5 +98,3 @@ export class CreateUserReqDto {
   })
   public readonly city?: string;
 }
-
-export type LoginReqDto = Pick<CreateUserReqDto, 'email' | 'password'>;

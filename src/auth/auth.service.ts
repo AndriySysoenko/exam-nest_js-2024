@@ -12,15 +12,16 @@ import Redis from 'ioredis';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 
 import { UserEntity } from '../database/entities/user.entity';
-import {
-  CreateUserReqDto,
-  LoginReqDto,
-} from '../users/dto/create-user.req.dto';
+import { CreateUserReqDto } from '../users/dto/create-user.req.dto';
 import { ITokenPair } from '../common/interfaces/ITokenPair';
 import { ITokenPayload } from '../common/interfaces/ITokenPayload';
 import { UserResDto } from '../users/dto/user.res.dto';
 import { plainToInstance } from 'class-transformer';
 import { RefreshTokenEntity } from '../database/entities/refresh-token.entity';
+import { AuthSignUpResponseDto } from './dto/auth.res.dto';
+import { TokenPairDto } from './dto/token-pair.dto';
+import { LoginReqDto } from './dto/login-user.req.dto';
+import { RefreshTokenDto } from './dto/refresh-token.req.dto';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +36,7 @@ export class AuthService {
 
   public async signUp(
     dataAuthDto: CreateUserReqDto,
-  ): Promise<{ newUser: UserResDto; tokens: ITokenPair }> {
+  ): Promise<AuthSignUpResponseDto> {
     try {
       const findUser = await this.usersRepository.findOne({
         where: { email: dataAuthDto.email },
@@ -78,7 +79,7 @@ export class AuthService {
     throw new UnauthorizedException('Invalid credentials');
   }
 
-  public async login(loginDto: LoginReqDto): Promise<ITokenPair> {
+  public async login(loginDto: LoginReqDto): Promise<TokenPairDto> {
     try {
       const user = await this.validateUser(loginDto.email, loginDto.password);
       return this.generateTokens(user);
@@ -142,12 +143,14 @@ export class AuthService {
     }
   }
 
-  public async refreshToken(oldRefreshToken: string): Promise<ITokenPair> {
+  public async refreshToken(
+    oldRefreshToken: RefreshTokenDto,
+  ): Promise<TokenPairDto> {
     if (!oldRefreshToken) {
       throw new UnauthorizedException('Refresh token is required.');
     }
     try {
-      this.jwtService.verify<ITokenPayload>(oldRefreshToken, {
+      this.jwtService.verify<ITokenPayload>(oldRefreshToken.refreshToken, {
         secret: process.env.JWT_REFRESH_SECRET,
       });
     } catch {
@@ -155,7 +158,7 @@ export class AuthService {
     }
 
     const tokenEntity = await this.refreshTokenRepository.findOne({
-      where: { token: oldRefreshToken },
+      where: { token: oldRefreshToken.refreshToken },
     });
     if (!tokenEntity) {
       throw new UnauthorizedException('Refresh token not found.');
@@ -168,7 +171,9 @@ export class AuthService {
     }
 
     const newTokens = await this.generateTokens(user);
-    await this.refreshTokenRepository.delete({ token: oldRefreshToken });
+    await this.refreshTokenRepository.delete({
+      token: oldRefreshToken.refreshToken,
+    });
 
     return newTokens;
   }

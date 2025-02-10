@@ -17,7 +17,9 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Exam project')
-    .setDescription('The API description for creating, searching and updating a user and his posts. Getting a list of users and posts with pagination. Carrying out authorization and working with tokens.')
+    .setDescription(
+      'The API description for creating, searching and updating a user and his posts. Getting a list of users and posts with pagination. Carrying out authorization and working with tokens.',
+    )
     .setVersion('1.0.0')
     .addBearerAuth({
       type: 'http',
@@ -30,16 +32,22 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document, {
     swaggerOptions: {
       docExpansion: 'list',
+      defaultModelsExpandDepth: 2,
+      persistAuthorization: true,
     },
   });
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true,
-    whitelist: true,
-    forbidNonWhitelisted: true
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
   await app.listen(appConfig.port, appConfig.host, () => {
-    console.log(`Server running on port http://${appConfig.host}:${appConfig.port}`);
+    console.log(
+      `Server running on port http://${appConfig.host}:${appConfig.port}`,
+    );
     console.log('Swagger running on http://localhost:3000/docs');
   });
 }
